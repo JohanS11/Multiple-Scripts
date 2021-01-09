@@ -1,1 +1,7 @@
-# Usefull python scripts
+# Usefull scripts for hacking 
+
+## Languages
+
+  - Python
+  - Golang 
+  - Bash
