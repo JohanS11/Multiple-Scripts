@@ -2,38 +2,42 @@
 
 from socket import *
 from threading import *
-import sys
+import sys, queue
+
+openports = []
 
 def portScan(host,ports):
+    global openports
     try:
         tgtIp = gethostbyname(host)
     except:
         print("Host %s has not been resolved" %host)
+        exit(0)
     try:
         tgtName = gethostbyaddr(tgtIp)
         print("[+] Scan results for: " + tgtName[0])
     except:
         print("[x] Couldn't connect to host ") + tgtIp
+        exit(0)
     setdefaulttimeout(1)
 
     for port in ports:
         t = Thread(target=scanner, args=(host,int(port)))
         t.start()
 
-
 def scanner(host,port):
+
+    global openports
+
     sock = socket(AF_INET,SOCK_STREAM)
     if (sock.connect_ex((host,port))):
         pass
     else:
-        print("[+] %d/tcp Open" % port)
-
-def scanallports(option, opt_str, value, parser):
-
-    #1 callback
-    global allPorts
-    allPorts = [i for i in range(10)]
-    print(allPorts)
+        
+        openports.append(port)
+        ports = ','.join(map(str, openports)) 
+        print("[+] Open ports " , ports)
+        
 
 
 def usage():
@@ -50,7 +54,7 @@ def usage():
     return banner
 
 def main():
-
+    global portsopen
     try :
         if (sys.argv[1] == None) : print("?")
     except :   
@@ -60,7 +64,7 @@ def main():
         print(usage())
         exit(0)
 
-    tgtHost = sys.argv[2]
+    tgtHost = str(sys.argv[2])
 
     if (sys.argv[3] == '-p'):
         tgtPorts = str(sys.argv[4]).split(',')
@@ -71,6 +75,7 @@ def main():
         exit(0)
         
     portScan(tgtHost,tgtPorts)
+   
     
 if __name__ == '__main__':
     main()
